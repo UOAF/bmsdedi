@@ -14,6 +14,7 @@ INCLUDE_DIRECTORIES(
 project (d3d9)
 set(SOURCES
     src/main/dllmain.cpp
+    src/main/gui.cpp
     src/wrapper/IDirect3D9Ex.cpp
     src/wrapper/IDirect3DCubeTexture9.cpp
     src/wrapper/IDirect3DDevice9Ex.cpp

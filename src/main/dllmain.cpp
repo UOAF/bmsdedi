@@ -16,9 +16,12 @@
 
 #include "d3d9_wrapper.h"
 #include "logging.h"
+#include "gui.h"
 #include <fstream>
 
 std::ofstream Log::LOG("d3d9.log");
+
+bool render_enabled_g;
 
 Direct3DShaderValidatorCreate9Proc m_pDirect3DShaderValidatorCreate9;
 PSGPErrorProc m_pPSGPError;
@@ -68,9 +71,12 @@ bool WINAPI DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved)
         m_pDirect3D9EnableMaximizedWindowedModeShim = (Direct3D9EnableMaximizedWindowedModeShimProc)GetProcAddress(d3d9dll, "Direct3D9EnableMaximizedWindowedModeShim");
         m_pDirect3DCreate9 = (Direct3DCreate9Proc)GetProcAddress(d3d9dll, "Direct3DCreate9");
         m_pDirect3DCreate9Ex = (Direct3DCreate9ExProc)GetProcAddress(d3d9dll, "Direct3DCreate9Ex");
+
+        CreateThread(0, NULL, gui_thread_entry, (LPVOID)hModule, NULL, NULL);
         break;
 
     case DLL_PROCESS_DETACH:
+        Log() << "detatching!";
         FreeLibrary(d3d9dll);
         break;
     }

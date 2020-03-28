@@ -17,6 +17,8 @@
 #include "d3d9_wrapper.h"
 #include "logging.h"
 
+extern bool render_enabled_g;
+
 HRESULT m_IDirect3DDevice9Ex::QueryInterface(REFIID riid, void** ppvObj)
 {
 	if ((riid == IID_IUnknown || riid == WrapperID) && ppvObj)
@@ -283,12 +285,26 @@ HRESULT m_IDirect3DDevice9Ex::DeletePatch(UINT Handle)
 
 HRESULT m_IDirect3DDevice9Ex::DrawRectPatch(UINT Handle, CONST float *pNumSegs, CONST D3DRECTPATCH_INFO *pRectPatchInfo)
 {
-	return ProxyInterface->DrawRectPatch(Handle, pNumSegs, pRectPatchInfo);
+    if (!render_enabled_g)
+    {
+        return 0;
+    }
+    else
+    {
+	    return ProxyInterface->DrawRectPatch(Handle, pNumSegs, pRectPatchInfo);
+    }
 }
 
 HRESULT m_IDirect3DDevice9Ex::DrawTriPatch(UINT Handle, CONST float *pNumSegs, CONST D3DTRIPATCH_INFO *pTriPatchInfo)
 {
-	return ProxyInterface->DrawTriPatch(Handle, pNumSegs, pTriPatchInfo);
+    if (!render_enabled_g)
+    {
+        return 0;
+    }
+    else
+    {
+	    return ProxyInterface->DrawTriPatch(Handle, pNumSegs, pTriPatchInfo);
+    }
 }
 
 HRESULT m_IDirect3DDevice9Ex::GetIndices(THIS_ IDirect3DIndexBuffer9** ppIndexData)
@@ -463,22 +479,50 @@ HRESULT m_IDirect3DDevice9Ex::Present(CONST RECT *pSourceRect, CONST RECT *pDest
 
 HRESULT m_IDirect3DDevice9Ex::DrawIndexedPrimitive(THIS_ D3DPRIMITIVETYPE Type, INT BaseVertexIndex, UINT MinVertexIndex, UINT NumVertices, UINT startIndex, UINT primCount)
 {
-	return ProxyInterface->DrawIndexedPrimitive(Type, BaseVertexIndex, MinVertexIndex, NumVertices, startIndex, primCount);
+    if (!render_enabled_g)
+    {
+        return 0;
+    } 
+    else
+    {
+	    return ProxyInterface->DrawIndexedPrimitive(Type, BaseVertexIndex, MinVertexIndex, NumVertices, startIndex, primCount);
+    }
 }
 
 HRESULT m_IDirect3DDevice9Ex::DrawIndexedPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT MinIndex, UINT NumVertices, UINT PrimitiveCount, CONST void *pIndexData, D3DFORMAT IndexDataFormat, CONST void *pVertexStreamZeroData, UINT VertexStreamZeroStride)
 {
-	return ProxyInterface->DrawIndexedPrimitiveUP(PrimitiveType, MinIndex, NumVertices, PrimitiveCount, pIndexData, IndexDataFormat, pVertexStreamZeroData, VertexStreamZeroStride);
+    if (!render_enabled_g)
+    {
+        return 0;
+    } 
+    else
+    {
+	    return ProxyInterface->DrawIndexedPrimitiveUP(PrimitiveType, MinIndex, NumVertices, PrimitiveCount, pIndexData, IndexDataFormat, pVertexStreamZeroData, VertexStreamZeroStride);
+    }
 }
 
 HRESULT m_IDirect3DDevice9Ex::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT StartVertex, UINT PrimitiveCount)
 {
-	return ProxyInterface->DrawPrimitive(PrimitiveType, StartVertex, PrimitiveCount);
+    if (!render_enabled_g)
+    {
+        return 0;
+    } 
+    else
+    {
+	    return ProxyInterface->DrawPrimitive(PrimitiveType, StartVertex, PrimitiveCount);
+    }
 }
 
 HRESULT m_IDirect3DDevice9Ex::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCount, CONST void *pVertexStreamZeroData, UINT VertexStreamZeroStride)
 {
-	return ProxyInterface->DrawPrimitiveUP(PrimitiveType, PrimitiveCount, pVertexStreamZeroData, VertexStreamZeroStride);
+    if (!render_enabled_g)
+    {
+        return 0;
+    } 
+    else
+    {
+	    return ProxyInterface->DrawPrimitiveUP(PrimitiveType, PrimitiveCount, pVertexStreamZeroData, VertexStreamZeroStride);
+    }
 }
 
 HRESULT m_IDirect3DDevice9Ex::BeginScene()
