@@ -95,8 +95,11 @@ void D3D11DeviceContextWrapper::DrawIndexed(UINT IndexCount,
                                             UINT StartIndexLocation,
                                             INT BaseVertexLocation)
 {
-    d3d11_device_context_->DrawIndexed(IndexCount, StartIndexLocation,
-                                       BaseVertexLocation);
+    if (render_enabled_g)
+    {
+        d3d11_device_context_->DrawIndexed(IndexCount, StartIndexLocation,
+                                           BaseVertexLocation);
+    }
 }
 
 void D3D11DeviceContextWrapper::Draw(UINT VertexCount, UINT StartVertexLocation)
@@ -156,9 +159,12 @@ void D3D11DeviceContextWrapper::DrawIndexedInstanced(UINT IndexCountPerInstance,
                                                      INT BaseVertexLocation,
                                                      UINT StartInstanceLocation)
 {
-    d3d11_device_context_->DrawIndexedInstanced(
-        IndexCountPerInstance, InstanceCount, StartIndexLocation,
-        BaseVertexLocation, StartInstanceLocation);
+    if (render_enabled_g)
+    {
+        d3d11_device_context_->DrawIndexedInstanced(
+            IndexCountPerInstance, InstanceCount, StartIndexLocation,
+            BaseVertexLocation, StartInstanceLocation);
+    }
 }
 
 void D3D11DeviceContextWrapper::DrawInstanced(UINT VertexCountPerInstance,
@@ -342,9 +348,12 @@ void D3D11DeviceContextWrapper::CopySubresourceRegion(
     UINT DstZ, ID3D11Resource* pSrcResource, UINT SrcSubresource,
     const D3D11_BOX* pSrcBox)
 {
-    d3d11_device_context_->CopySubresourceRegion(pDstResource, DstSubresource,
-                                                 DstX, DstY, DstZ, pSrcResource,
-                                                 SrcSubresource, pSrcBox);
+    if (render_enabled_g)
+    {
+        d3d11_device_context_->CopySubresourceRegion(
+            pDstResource, DstSubresource, DstX, DstY, DstZ, pSrcResource,
+            SrcSubresource, pSrcBox);
+    }
 }
 
 void D3D11DeviceContextWrapper::CopyResource(ID3D11Resource* pDstResource,
@@ -373,14 +382,21 @@ void D3D11DeviceContextWrapper::CopyStructureCount(
 void D3D11DeviceContextWrapper::ClearRenderTargetView(
     ID3D11RenderTargetView* pRenderTargetView, const FLOAT ColorRGBA[4])
 {
-    d3d11_device_context_->ClearRenderTargetView(pRenderTargetView, ColorRGBA);
+    if (render_enabled_g)
+    {
+        d3d11_device_context_->ClearRenderTargetView(pRenderTargetView,
+                                                     ColorRGBA);
+    }
 }
 
 void D3D11DeviceContextWrapper::ClearUnorderedAccessViewUint(
     ID3D11UnorderedAccessView* pUnorderedAccessView, const UINT Values[4])
 {
-    d3d11_device_context_->ClearUnorderedAccessViewUint(pUnorderedAccessView,
-                                                        Values);
+    if (render_enabled_g)
+    {
+        d3d11_device_context_->ClearUnorderedAccessViewUint(
+            pUnorderedAccessView, Values);
+    }
 }
 
 void D3D11DeviceContextWrapper::ClearUnorderedAccessViewFloat(
@@ -394,8 +410,11 @@ void D3D11DeviceContextWrapper::ClearDepthStencilView(
     ID3D11DepthStencilView* pDepthStencilView, UINT ClearFlags, FLOAT Depth,
     UINT8 Stencil)
 {
-    d3d11_device_context_->ClearDepthStencilView(pDepthStencilView, ClearFlags,
-                                                 Depth, Stencil);
+    if (render_enabled_g)
+    {
+        d3d11_device_context_->ClearDepthStencilView(
+            pDepthStencilView, ClearFlags, Depth, Stencil);
+    }
 }
 
 void D3D11DeviceContextWrapper::GenerateMips(

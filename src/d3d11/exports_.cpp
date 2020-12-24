@@ -99,7 +99,7 @@ HRESULT WINAPI D3D11CreateDevice_(
                 _Out_opt_ D3D_FEATURE_LEVEL* pFeatureLevel,
                 _Out_opt_ ID3D11DeviceContext** ppImmediateContext )
 {
-    SPDLOG_TRACE("Lord help us!");
+    SPDLOG_TRACE("Creating device");
     ID3D11DeviceContext* real_device_context;
     auto func =
         D3D11CreateDevice_t(d3d11::functions[d3d11::D3D11CreateDevice_i]);
@@ -131,7 +131,7 @@ HRESULT WINAPI D3D11CreateDeviceAndSwapChain_(
                 _Out_opt_ D3D_FEATURE_LEVEL* pFeatureLevel,
                 _Out_opt_ ID3D11DeviceContext** ppImmediateContext )
 {
-    SPDLOG_TRACE("");
+    SPDLOG_TRACE("Creating device and swap chain");
     HRESULT result = D3D11CreateDeviceAndSwapChain_t(d3d11::functions[d3d11::D3D11CreateDeviceAndSwapChain_i])(pAdapter, DriverType, Software, Flags, pFeatureLevels, FeatureLevels, SDKVersion, pSwapChainDesc, ppSwapChain, ppDevice, pFeatureLevel, ppImmediateContext);
     return result;
 }
