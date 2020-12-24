@@ -73,17 +73,17 @@ DWORD gui_thread_entry(LPVOID module)
     CheckDlgButton(hwnd, 1, BST_CHECKED);
     ShowWindow(hwnd, true);
 
-    auto checkbox = CreateWindow("BUTTON",  // Predefined class; Unicode assumed
-                                 "Enable rendering",  // Button text
-                                 WS_VISIBLE | WS_CHILD | BS_CHECKBOX,  // Styles
-                                 10,        // x position
-                                 10,        // y position
-                                 192,       // Button width
-                                 16,        // Button height
-                                 hwnd,      // Parent window
-                                 (HMENU)1,  // No menu.
-                                 dll_module,
-                                 NULL);  // Pointer not needed.
+    CreateWindow("BUTTON",            // Predefined class; Unicode assumed
+                 "Enable rendering",  // Button text
+                 WS_VISIBLE | WS_CHILD | BS_CHECKBOX,  // Styles
+                 10,                                   // x position
+                 10,                                   // y position
+                 192,                                  // Button width
+                 16,                                   // Button height
+                 hwnd,                                 // Parent window
+                 (HMENU)1,                             // No menu.
+                 dll_module,
+                 NULL);  // Pointer not needed.
 
     CheckDlgButton(hwnd, 1, true);
     render_enabled_g = true;
