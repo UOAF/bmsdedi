@@ -1,9 +1,9 @@
 #define WIN32_LEAN_AND_MEAN
 #include "gui.h"
-#include "logging.h"
+#include "shared.h"
 #include <windows.h>
 
-extern bool render_enabled_g;
+bool render_enabled_g;
 
 LRESULT CALLBACK debug_window_handler(HWND hwnd, UINT message, WPARAM wparam,
                                       LPARAM lparam)
@@ -27,7 +27,7 @@ LRESULT CALLBACK debug_window_handler(HWND hwnd, UINT message, WPARAM wparam,
         }
         break;
     }
-    
+
     case WM_DESTROY:
         PostQuitMessage(0);
         break;
@@ -39,10 +39,9 @@ LRESULT CALLBACK debug_window_handler(HWND hwnd, UINT message, WPARAM wparam,
 
 bool register_window_class(HMODULE module)
 {
-    Log() << "about to register window class";
     WNDCLASSEX wc;
     wc.hInstance     = module;
-    wc.lpszClassName = "D3d9RenderOptions";
+    wc.lpszClassName = "D3d11RenderOptions";
     wc.lpfnWndProc   = debug_window_handler;
     wc.style         = CS_DBLCLKS;
     wc.cbSize        = sizeof(WNDCLASSEX);
@@ -55,23 +54,20 @@ bool register_window_class(HMODULE module)
     wc.hbrBackground = (HBRUSH)COLOR_BACKGROUND;
     if (!RegisterClassEx(&wc))
     {
-        Log() << "window class failed";
         return false;
     }
     else
     {
-        Log() << "window class registered";
         return true;
     }
 }
 
 DWORD gui_thread_entry(LPVOID module)
 {
-    Log() << "thread running";
     auto dll_module = static_cast<HMODULE>(module);
 
     register_window_class(dll_module);
-    auto hwnd = CreateWindowEx(0, "D3d9RenderOptions", "D3D9 disabler", 0,
+    auto hwnd = CreateWindowEx(0, "D3d11RenderOptions", "D3D11 disabler", 0,
                                CW_USEDEFAULT, CW_USEDEFAULT, 400, 300, nullptr,
                                nullptr, dll_module, nullptr);
     CheckDlgButton(hwnd, 1, BST_CHECKED);

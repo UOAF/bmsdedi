@@ -1,244 +1,60 @@
-/**
-* Copyright (C) 2019 Elisha Riedlinger
-*
-* This software is  provided 'as-is', without any express  or implied  warranty. In no event will the
-* authors be held liable for any damages arising from the use of this software.
-* Permission  is granted  to anyone  to use  this software  for  any  purpose,  including  commercial
-* applications, and to alter it and redistribute it freely, subject to the following restrictions:
-*
-*   1. The origin of this software must not be misrepresented; you must not claim that you  wrote the
-*      original  software. If you use this  software  in a product, an  acknowledgment in the product
-*      documentation would be appreciated but is not required.
-*   2. Altered source versions must  be plainly  marked as such, and  must not be  misrepresented  as
-*      being the original software.
-*   3. This notice may not be removed or altered from any source distribution.
+
+/*
+    CONTRIBUTORS:
+        Sean Pesce
 */
 
-#include "d3d9_wrapper.h"
-#include "logging.h"
+#include "dllmain.h"
 #include "gui.h"
-#include <fstream>
+#include "shared.h"
+#include "spdlog/sinks/basic_file_sink.h"
+#include "spdlog/spdlog.h"
 
-std::ofstream Log::LOG("d3d9.log");
+#include <memory>
 
-bool render_enabled_g;
+std::shared_ptr<spdlog::logger> log_g;
 
-Direct3DShaderValidatorCreate9Proc m_pDirect3DShaderValidatorCreate9;
-PSGPErrorProc m_pPSGPError;
-PSGPSampleTextureProc m_pPSGPSampleTexture;
-D3DPERF_BeginEventProc m_pD3DPERF_BeginEvent;
-D3DPERF_EndEventProc m_pD3DPERF_EndEvent;
-D3DPERF_GetStatusProc m_pD3DPERF_GetStatus;
-D3DPERF_QueryRepeatFrameProc m_pD3DPERF_QueryRepeatFrame;
-D3DPERF_SetMarkerProc m_pD3DPERF_SetMarker;
-D3DPERF_SetOptionsProc m_pD3DPERF_SetOptions;
-D3DPERF_SetRegionProc m_pD3DPERF_SetRegion;
-DebugSetLevelProc m_pDebugSetLevel;
-DebugSetMuteProc m_pDebugSetMute;
-Direct3D9EnableMaximizedWindowedModeShimProc m_pDirect3D9EnableMaximizedWindowedModeShim;
-Direct3DCreate9Proc m_pDirect3DCreate9;
-Direct3DCreate9ExProc m_pDirect3DCreate9Ex;
-
-bool WINAPI DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved)
+BOOL APIENTRY DllMain(HMODULE h_module, DWORD ul_reason_for_call,
+                      LPVOID lp_reserved)
 {
-    static HMODULE d3d9dll = nullptr;
-
-    switch (dwReason)
+    switch (ul_reason_for_call)
     {
     case DLL_PROCESS_ATTACH:
-        // Load dll
-        char path[MAX_PATH];
-        GetSystemDirectoryA(path, MAX_PATH);
-        strcat_s(path, "\\d3d9.dll");
-        Log() << "Loading " << path;
-        d3d9dll = LoadLibraryA(path);
-        
-        //setup_console();
+    {
+        auto logger = spdlog::basic_logger_mt("bmsdedi", "bmsdedi.log.txt");
+        log_g       = spdlog::get("bmsdedi");
+        spdlog::set_level(spdlog::level::info);
+        spdlog::set_default_logger(log_g);
 
-        // Get function addresses
-        m_pDirect3DShaderValidatorCreate9 = (Direct3DShaderValidatorCreate9Proc)GetProcAddress(d3d9dll, "Direct3DShaderValidatorCreate9");
-        m_pPSGPError = (PSGPErrorProc)GetProcAddress(d3d9dll, "PSGPError");
-        m_pPSGPSampleTexture = (PSGPSampleTextureProc)GetProcAddress(d3d9dll, "PSGPSampleTexture");
-        m_pD3DPERF_BeginEvent = (D3DPERF_BeginEventProc)GetProcAddress(d3d9dll, "D3DPERF_BeginEvent");
-        m_pD3DPERF_EndEvent = (D3DPERF_EndEventProc)GetProcAddress(d3d9dll, "D3DPERF_EndEvent");
-        m_pD3DPERF_GetStatus = (D3DPERF_GetStatusProc)GetProcAddress(d3d9dll, "D3DPERF_GetStatus");
-        m_pD3DPERF_QueryRepeatFrame = (D3DPERF_QueryRepeatFrameProc)GetProcAddress(d3d9dll, "D3DPERF_QueryRepeatFrame");
-        m_pD3DPERF_SetMarker = (D3DPERF_SetMarkerProc)GetProcAddress(d3d9dll, "D3DPERF_SetMarker");
-        m_pD3DPERF_SetOptions = (D3DPERF_SetOptionsProc)GetProcAddress(d3d9dll, "D3DPERF_SetOptions");
-        m_pD3DPERF_SetRegion = (D3DPERF_SetRegionProc)GetProcAddress(d3d9dll, "D3DPERF_SetRegion");
-        m_pDebugSetLevel = (DebugSetLevelProc)GetProcAddress(d3d9dll, "DebugSetLevel");
-        m_pDebugSetMute = (DebugSetMuteProc)GetProcAddress(d3d9dll, "DebugSetMute");
-        m_pDirect3D9EnableMaximizedWindowedModeShim = (Direct3D9EnableMaximizedWindowedModeShimProc)GetProcAddress(d3d9dll, "Direct3D9EnableMaximizedWindowedModeShim");
-        m_pDirect3DCreate9 = (Direct3DCreate9Proc)GetProcAddress(d3d9dll, "Direct3DCreate9");
-        m_pDirect3DCreate9Ex = (Direct3DCreate9ExProc)GetProcAddress(d3d9dll, "Direct3DCreate9Ex");
+        auto success = dll::on_process_attach(h_module, lp_reserved);
+        if (not success)
+        {
+            return success;
+        }
 
-        CreateThread(0, NULL, gui_thread_entry, (LPVOID)hModule, NULL, NULL);
+        auto result = CreateThread(0, NULL, gui_thread_entry,
+                                   static_cast<LPVOID>(h_module), NULL, NULL);
+        return SUCCEEDED(result);
         break;
+    }
+
+    case DLL_THREAD_ATTACH:
+    {
+        return dll::on_thread_attach(h_module, lp_reserved);
+        break;
+    }
+
+    case DLL_THREAD_DETACH:
+    {
+        return dll::on_thread_detach(h_module, lp_reserved);
+        break;
+    }
 
     case DLL_PROCESS_DETACH:
-        Log() << "detatching!";
-        FreeLibrary(d3d9dll);
+    {
+        return dll::on_process_detach(h_module, lp_reserved);
         break;
     }
-
-    return true;
-}
-
-HRESULT WINAPI Direct3DShaderValidatorCreate9()
-{
-    if (!m_pDirect3DShaderValidatorCreate9)
-    {
-        return E_FAIL;
     }
-
-    return m_pDirect3DShaderValidatorCreate9();
-}
-
-HRESULT WINAPI PSGPError()
-{
-    if (!m_pPSGPError)
-    {
-        return E_FAIL;
-    }
-
-    return m_pPSGPError();
-}
-
-HRESULT WINAPI PSGPSampleTexture()
-{
-    if (!m_pPSGPSampleTexture)
-    {
-        return E_FAIL;
-    }
-
-    return m_pPSGPSampleTexture();
-}
-
-int WINAPI D3DPERF_BeginEvent(D3DCOLOR col, LPCWSTR wszName)
-{
-    if (!m_pD3DPERF_BeginEvent)
-    {
-        return NULL;
-    }
-
-    return m_pD3DPERF_BeginEvent(col, wszName);
-}
-
-int WINAPI D3DPERF_EndEvent()
-{
-    if (!m_pD3DPERF_EndEvent)
-    {
-        return NULL;
-    }
-
-    return m_pD3DPERF_EndEvent();
-}
-
-DWORD WINAPI D3DPERF_GetStatus()
-{
-    if (!m_pD3DPERF_GetStatus)
-    {
-        return NULL;
-    }
-
-    return m_pD3DPERF_GetStatus();
-}
-
-BOOL WINAPI D3DPERF_QueryRepeatFrame()
-{
-    if (!m_pD3DPERF_QueryRepeatFrame)
-    {
-        return FALSE;
-    }
-
-    return m_pD3DPERF_QueryRepeatFrame();
-}
-
-void WINAPI D3DPERF_SetMarker(D3DCOLOR col, LPCWSTR wszName)
-{
-    if (!m_pD3DPERF_SetMarker)
-    {
-        return;
-    }
-
-    return m_pD3DPERF_SetMarker(col, wszName);
-}
-
-void WINAPI D3DPERF_SetOptions(DWORD dwOptions)
-{
-    if (!m_pD3DPERF_SetOptions)
-    {
-        return;
-    }
-
-    return m_pD3DPERF_SetOptions(dwOptions);
-}
-
-void WINAPI D3DPERF_SetRegion(D3DCOLOR col, LPCWSTR wszName)
-{
-    if (!m_pD3DPERF_SetRegion)
-    {
-        return;
-    }
-
-    return m_pD3DPERF_SetRegion(col, wszName);
-}
-
-HRESULT WINAPI DebugSetLevel(DWORD dw1)
-{
-    if (!m_pDebugSetLevel)
-    {
-        return E_FAIL;
-    }
-
-    return m_pDebugSetLevel(dw1);
-}
-
-void WINAPI DebugSetMute()
-{
-    if (!m_pDebugSetMute)
-    {
-        return;
-    }
-
-    return m_pDebugSetMute();
-}
-
-void WINAPI Direct3D9EnableMaximizedWindowedModeShim()
-{
-    return m_pDirect3D9EnableMaximizedWindowedModeShim();
-}
-
-IDirect3D9 *WINAPI Direct3DCreate9(UINT SDKVersion)
-{
-    if (!m_pDirect3DCreate9)
-    {
-        return nullptr;
-    }
-
-    IDirect3D9 *pD3D9 = m_pDirect3DCreate9(SDKVersion);
-
-    if (pD3D9)
-    {
-        return new m_IDirect3D9Ex((IDirect3D9Ex *)pD3D9, IID_IDirect3D9);
-    }
-
-    return nullptr;
-}
-
-HRESULT WINAPI Direct3DCreate9Ex(UINT SDKVersion, IDirect3D9Ex **ppD3D)
-{
-    if (!m_pDirect3DCreate9Ex)
-    {
-        return E_FAIL;
-    }
-
-    HRESULT hr = m_pDirect3DCreate9Ex(SDKVersion, ppD3D);
-
-    if (SUCCEEDED(hr) && ppD3D)
-    {
-        *ppD3D = new m_IDirect3D9Ex(*ppD3D, IID_IDirect3D9Ex);
-    }
-
-    return hr;
+    return TRUE;
 }
