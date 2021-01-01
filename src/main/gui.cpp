@@ -1,9 +1,11 @@
 #define WIN32_LEAN_AND_MEAN
+
 #include "gui.h"
 #include "shared.h"
+
 #include <windows.h>
 
-bool render_enabled_g;
+std::atomic_bool render_enabled_g;
 
 LRESULT CALLBACK debug_window_handler(HWND hwnd, UINT message, WPARAM wparam,
                                       LPARAM lparam)
