@@ -1,10 +1,7 @@
 # CMakeLists files in this project can
 # refer to the root source directory of the project as ${HELLO_SOURCE_DIR} and
 # to the root binary directory of the project as ${HELLO_BINARY_DIR}.
-cmake_minimum_required (VERSION 2.8.11)
-
-set(CMAKE_C_COMPILER "clang")
-set(CMAKE_CXX_COMPILER "clang++")
+cmake_minimum_required (VERSION 3.8)
 
 INCLUDE_DIRECTORIES(
     src/main
@@ -22,7 +19,21 @@ set(SOURCES
     src/d3d11/D3D11DeviceContextWrapper.cpp
 )
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall -std=c++17 -Wno-microsoft-exception-spec -Wno-deprecated-declarations")
+if(MSVC)
+    add_compile_options("/W4" "/std:c++17" "/Za" "$<$<CONFIG:RELEASE>:/O2>")
+else()
+    set(CMAKE_C_COMPILER "clang")
+    set(CMAKE_CXX_COMPILER "clang++")
+    add_compile_options("-Wall" "$<$<CONFIG:RELEASE>:-O3>")
+    add_compile_options("-std=c++17" "-Wno-deprecated-declarations")
+    add_compile_options("-Wno-microsoft-exception-spec")
+    # if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    #     add_compile_options("-stdlib=libc++")
+    # else()
+    #     # nothing special for gcc at the moment
+    # endif()
+endif()
+
 
 # Recurse into the "Hello" and "Demo" subdirectories. This does not actually
 # cause another cmake executable to run. The same process will walk through
