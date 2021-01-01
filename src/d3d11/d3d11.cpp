@@ -22,8 +22,8 @@ void hook_exports()
     wrapped_dll = LoadLibraryA(dll_path.c_str());
 
     log_g->debug("Locating exports... ");
-    int count = 0;
-    for (int i = 0; i < d3d11::func_count; i++)
+    size_t count = 0;
+    for (size_t i = 0; i < d3d11::func_count; i++)
     {
         FARPROC func = GetProcAddress(wrapped_dll, func_names[i]);
         if (func)
