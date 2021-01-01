@@ -172,9 +172,12 @@ void D3D11DeviceContextWrapper::DrawInstanced(UINT VertexCountPerInstance,
                                               UINT StartVertexLocation,
                                               UINT StartInstanceLocation)
 {
-    d3d11_device_context_->DrawInstanced(VertexCountPerInstance, InstanceCount,
-                                         StartVertexLocation,
-                                         StartInstanceLocation);
+    if (shouldRender())
+    {
+        d3d11_device_context_->DrawInstanced(VertexCountPerInstance,
+                                             InstanceCount, StartVertexLocation,
+                                             StartInstanceLocation);
+    }
 }
 
 void D3D11DeviceContextWrapper::GSSetConstantBuffers(
@@ -293,21 +296,30 @@ void D3D11DeviceContextWrapper::SOSetTargets(UINT NumBuffers,
 
 void D3D11DeviceContextWrapper::DrawAuto(void)
 {
-    d3d11_device_context_->DrawAuto();
+    if (shouldRender())
+    {
+        d3d11_device_context_->DrawAuto();
+    }
 }
 
 void D3D11DeviceContextWrapper::DrawIndexedInstancedIndirect(
     ID3D11Buffer* pBufferForArgs, UINT AlignedByteOffsetForArgs)
 {
-    d3d11_device_context_->DrawIndexedInstancedIndirect(
-        pBufferForArgs, AlignedByteOffsetForArgs);
+    if (shouldRender())
+    {
+        d3d11_device_context_->DrawIndexedInstancedIndirect(
+            pBufferForArgs, AlignedByteOffsetForArgs);
+    }
 }
 
 void D3D11DeviceContextWrapper::DrawInstancedIndirect(
     ID3D11Buffer* pBufferForArgs, UINT AlignedByteOffsetForArgs)
 {
-    d3d11_device_context_->DrawInstancedIndirect(pBufferForArgs,
-                                                 AlignedByteOffsetForArgs);
+    if (shouldRender())
+    {
+        d3d11_device_context_->DrawInstancedIndirect(pBufferForArgs,
+                                                     AlignedByteOffsetForArgs);
+    }
 }
 
 void D3D11DeviceContextWrapper::Dispatch(UINT ThreadGroupCountX,
@@ -348,12 +360,9 @@ void D3D11DeviceContextWrapper::CopySubresourceRegion(
     UINT DstZ, ID3D11Resource* pSrcResource, UINT SrcSubresource,
     const D3D11_BOX* pSrcBox)
 {
-    if (shouldRender())
-    {
-        d3d11_device_context_->CopySubresourceRegion(
-            pDstResource, DstSubresource, DstX, DstY, DstZ, pSrcResource,
-            SrcSubresource, pSrcBox);
-    }
+    d3d11_device_context_->CopySubresourceRegion(pDstResource, DstSubresource,
+                                                 DstX, DstY, DstZ, pSrcResource,
+                                                 SrcSubresource, pSrcBox);
 }
 
 void D3D11DeviceContextWrapper::CopyResource(ID3D11Resource* pDstResource,
@@ -382,21 +391,14 @@ void D3D11DeviceContextWrapper::CopyStructureCount(
 void D3D11DeviceContextWrapper::ClearRenderTargetView(
     ID3D11RenderTargetView* pRenderTargetView, const FLOAT ColorRGBA[4])
 {
-    if (shouldRender())
-    {
-        d3d11_device_context_->ClearRenderTargetView(pRenderTargetView,
-                                                     ColorRGBA);
-    }
+    d3d11_device_context_->ClearRenderTargetView(pRenderTargetView, ColorRGBA);
 }
 
 void D3D11DeviceContextWrapper::ClearUnorderedAccessViewUint(
     ID3D11UnorderedAccessView* pUnorderedAccessView, const UINT Values[4])
 {
-    if (shouldRender())
-    {
-        d3d11_device_context_->ClearUnorderedAccessViewUint(
-            pUnorderedAccessView, Values);
-    }
+    d3d11_device_context_->ClearUnorderedAccessViewUint(pUnorderedAccessView,
+                                                        Values);
 }
 
 void D3D11DeviceContextWrapper::ClearUnorderedAccessViewFloat(
@@ -410,11 +412,8 @@ void D3D11DeviceContextWrapper::ClearDepthStencilView(
     ID3D11DepthStencilView* pDepthStencilView, UINT ClearFlags, FLOAT Depth,
     UINT8 Stencil)
 {
-    if (shouldRender())
-    {
-        d3d11_device_context_->ClearDepthStencilView(
-            pDepthStencilView, ClearFlags, Depth, Stencil);
-    }
+    d3d11_device_context_->ClearDepthStencilView(pDepthStencilView, ClearFlags,
+                                                 Depth, Stencil);
 }
 
 void D3D11DeviceContextWrapper::GenerateMips(
