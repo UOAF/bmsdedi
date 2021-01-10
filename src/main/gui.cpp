@@ -81,7 +81,7 @@ bool register_window_class(HMODULE module)
     wc.lpszMenuName  = nullptr;
     wc.cbClsExtra    = 0;
     wc.cbWndExtra    = 0;
-    wc.hbrBackground = (HBRUSH)COLOR_BACKGROUND;
+    wc.hbrBackground = (HBRUSH)COLOR_WINDOW;
     return RegisterClassEx(&wc);
 }
 
