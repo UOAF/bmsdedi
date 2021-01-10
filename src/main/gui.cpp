@@ -47,8 +47,7 @@ void timerDispatch(HWND hwnd)
     render_enabled_g.store(should_render, std::memory_order_release);
 }
 
-LRESULT CALLBACK debug_window_handler(HWND hwnd, UINT message, WPARAM wparam,
-                                      LPARAM lparam)
+LRESULT CALLBACK event_handler(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam)
 {
     switch (message)
     {
@@ -72,7 +71,7 @@ bool register_window_class(HMODULE module)
     memset(&wc, 0, sizeof(wc));
     wc.hInstance     = module;
     wc.lpszClassName = "D3d11RenderOptions";
-    wc.lpfnWndProc   = debug_window_handler;
+    wc.lpfnWndProc   = event_handler;
     wc.style         = CS_DBLCLKS;
     wc.cbSize        = sizeof(WNDCLASSEX);
     wc.hIcon         = LoadIcon(nullptr, IDI_APPLICATION);
