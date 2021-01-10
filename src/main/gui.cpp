@@ -72,7 +72,7 @@ bool register_window_class(HMODULE module)
     wc.hInstance     = module;
     wc.lpszClassName = "D3d11RenderOptions";
     wc.lpfnWndProc   = event_handler;
-    wc.style         = CS_DBLCLKS;
+    wc.style         = 0;
     wc.cbSize        = sizeof(WNDCLASSEX);
     wc.hIcon         = LoadIcon(nullptr, IDI_APPLICATION);
     wc.hIconSm       = LoadIcon(nullptr, IDI_APPLICATION);
