@@ -82,7 +82,7 @@ bool register_window_class(HMODULE module)
     wc.cbClsExtra    = 0;
     wc.cbWndExtra    = 0;
     wc.hbrBackground = (HBRUSH)COLOR_WINDOW;
-    return RegisterClassEx(&wc);
+    return RegisterClassEx(&wc) != 0;
 }
 
 } // anonymous namespace
